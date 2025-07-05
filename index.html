@@ -261,15 +261,15 @@
             }
 
             .option-card {
-                width: 48%; /* Ajuste para caber dois cards lado a lado com um pequeno espaçamento */
-                max-width: 280px; /* Limite máximo para não ficarem muito grandes em telas maiores */
-                height: auto; /* Ajuste a altura automaticamente */
-                margin-bottom: 15px; /* Adiciona espaçamento entre os cards */
+                width: 48%;
+                max-width: 280px;
+                height: auto;
+                margin-bottom: 15px;
             }
 
             .option-image {
-                height: 180px; /* Altura reduzida para melhor acomodação em mobile */
-                object-fit: cover; /* Garante que a imagem cubra o espaço sem distorção */
+                height: 180px;
+                object-fit: cover;
             }
 
             .progress-percentage {
@@ -278,7 +278,6 @@
             }
         }
 
-        /* Media query adicional para telas muito pequenas */
         @media (max-width: 480px) {
             .container {
                 padding: 20px 15px;
@@ -289,12 +288,12 @@
             }
 
             .option-card {
-                width: 47%; /* Ligeiramente menor para telas muito pequenas */
+                width: 47%;
                 padding: 12px;
             }
 
             .option-image {
-                height: 160px; /* Altura ainda menor para telas muito pequenas */
+                height: 160px;
             }
 
             .gender-label {
@@ -306,7 +305,6 @@
             }
         }
 
-        /* Animação de entrada */
         .container {
             animation: slideUp 0.8s ease-out;
         }
@@ -349,13 +347,13 @@
         
         <!-- Título do Quiz -->
         <h1 class="quiz-title">Pergunta 1 de 2</h1>
-        <p class="quiz-subtitle">VOCê GOSTARIA DE VER AS OPÇÕES PARA:</p>
+        <p class="quiz-subtitle">VOCÊ GOSTARIA DE VER AS OPÇÕES PARA:</p>
         
         <!-- Opções -->
         <div class="options-container">
-            <!-- Opção 1: Tênis Jordan - MASCULINO -->
-            <div class="option-card" data-option="jordan" onclick="selectOption('jordan')">
-                <div class="option-image" style="background-image: url('https://valorecapital.com.br/wp-content/uploads/2025/07/nike-air-force-1-masculino.webp');"></div>
+            <!-- Opção 1: HOMEM -->
+            <div class="option-card" data-option="homem" onclick="selectOption('homem')">
+                <div class="option-image" style="background-image: url('https://valorecapital.com.br/wp-content/uploads/2025/07/QuizVec1-masculino.webp');"></div>
                 <div>
                     <div class="gender-label">HOMEM</div>
                     <div class="rating">
@@ -371,9 +369,9 @@
                 </div>
             </div>
             
-            <!-- Opção 2: Tênis de Corrida - FEMININO -->
-            <div class="option-card" data-option="running" onclick="selectOption('running')">
-                <div class="option-image" style="background-image: url('https://valorecapital.com.br/wp-content/uploads/2025/07/nike-air-jordan-feminino-2.webp');"></div>
+            <!-- Opção 2: MULHER -->
+            <div class="option-card" data-option="mulher" onclick="selectOption('mulher')">
+                <div class="option-image" style="background-image: url('https://valorecapital.com.br/wp-content/uploads/2025/07/QuizVec2-Feminino.webp');"></div>
                 <div>
                     <div class="gender-label">MULHER</div>
                     <div class="rating">
@@ -384,7 +382,7 @@
                             <span class="star">★</span>
                             <span class="star">★</span>
                         </div>
-                        <span class="rating-text">4.8/5.0</span>
+                        <span class="rating-text">4.95/5.0</span>
                     </div>
                 </div>
             </div>
@@ -430,8 +428,8 @@
             return utmParams;
         }
 
-        // Função para construir URL com parâmetros UTM
-        function buildUrlWithUtm(baseUrl) {
+        // Função para construir URL com parâmetros UTM + hash
+        function buildUrlWithUtm(baseUrl, gender) {
             // Primeiro tenta pegar da URL atual, depois do localStorage
             let utmParams = getUtmParamsFromUrl();
             
@@ -440,40 +438,39 @@
                 utmParams = getUtmParamsFromStorage();
             }
             
-            // Se não tem parâmetros UTM, retorna URL original
-            if (Object.keys(utmParams).length === 0) {
-                console.log('UTM Quiz: Nenhum parâmetro UTM encontrado para preservar');
-                return baseUrl;
-            }
+            // Constrói a URL base com UTM
+            const url = new URL(baseUrl);
             
-            // Constrói a query string
-            const utmQuery = Object.keys(utmParams)
-                .map(key => `${key}=${encodeURIComponent(utmParams[key])}`)
-                .join('&');
+            // Adiciona parâmetros UTM se existirem
+            Object.keys(utmParams).forEach(key => {
+                if (utmParams[key]) {
+                    url.searchParams.set(key, utmParams[key]);
+                }
+            });
             
-            // Adiciona os parâmetros à URL
-            const separator = baseUrl.includes('?') ? '&' : '?';
-            const finalUrl = `${baseUrl}${separator}${utmQuery}`;
+            // Adiciona hash/fragment com gênero (invisível para ads)
+            const finalUrl = url.toString() + '#' + gender;
             
-            console.log('UTM Quiz: URL com parâmetros UTM:', finalUrl);
-            console.log('UTM Quiz: Parâmetros preservados:', utmParams);
+            console.log('UTM Quiz: URL final com hash:', finalUrl);
+            console.log('UTM Quiz: Gênero no hash:', gender);
+            console.log('UTM Quiz: Parâmetros UTM preservados:', utmParams);
             
             return finalUrl;
         }
 
-        // Função para selecionar opção e redirecionar com UTM preservado
-        function selectOption(option) {
+        // Função para selecionar opção e redirecionar com UTM preservado + hash
+        function selectOption(gender) {
             // Adiciona efeito visual de seleção
             document.querySelectorAll('.option-card').forEach(card => {
                 card.classList.remove('selected');
             });
             
-            document.querySelector(`[data-option="${option}"]`).classList.add('selected');
+            document.querySelector(`[data-option="${gender}"]`).classList.add('selected');
             
             // Pequeno delay para mostrar a seleção antes de redirecionar
             setTimeout(() => {
-                const baseUrl = 'https://valorecapital.com.br/app-rec03-nike-tenis/';
-                const finalUrl = buildUrlWithUtm(baseUrl);
+                const baseUrl = 'https://valorecapital.com.br/app-rec03-nike-roupas/';
+                const finalUrl = buildUrlWithUtm(baseUrl, gender);
                 window.location.href = finalUrl;
             }, 300);
         }
